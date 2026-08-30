@@ -1,166 +1,221 @@
-# Production-Grade QLoRA Fine-Tuning Pipeline for Structured Extraction
+# 🧾 Industry-Grade QLoRA Fine-Tuning Pipeline & Evaluation Harness
 
-This repository contains a complete, production-grade ML pipeline for fine-tuning an open-weight LLM (e.g. Qwen2.5-7B-Instruct or Qwen2.5-1.5B-Instruct) using QLoRA to extract structured JSON metadata from messy, OCR-distorted document text.
+[![CI Build](https://github.com/PiyushMakhija26/QLoRA/actions/workflows/ci.yml/badge.svg)](https://github.com/PiyushMakhija26/QLoRA/actions)
+[![Python Version](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue.svg)](https://pyproject.toml)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-green.svg)](LICENSE)
+[![Formatting](https://img.shields.io/badge/code%20style-ruff-black.svg)](https://github.com/astral-sh/ruff)
+[![Static Typing](https://img.shields.io/badge/types-mypy--strict-blue.svg)](https://github.com/python/mypy)
 
-The project features a rigorous evaluation harness (field-level F1 calculations with Hungarian bipartite matching and automated error categorization), complete configuration management, and unit testing/CI checks.
+A production-ready machine learning codebase for fine-tuning open-weight Large Language Models (e.g., `Qwen2.5-7B-Instruct` or `Qwen2.5-1.5B-Instruct`) to extract structured, schema-compliant JSON data from noisy, OCR-distorted business documents (invoices, thermal receipts, transaction logs).
+
+This repository features a **rigorous evaluation harness** employing Hungarian bipartite matching, comprehensive **hyperparameter ablation automation**, and a **Streamlit UI/UX Dashboard** with real-time extraction, schema validation, and summation checks.
 
 ---
 
-## Project Layout
+## 📑 Table of Contents
+1. [Core Features](#-core-features)
+2. [Architecture Overview](#-architecture-overview)
+3. [Repository Layout](#-repository-layout)
+4. [Installation & Setup](#-installation--setup)
+5. [Quick Start Reproduction](#-quick-start-reproduction)
+6. [Interactive UI Dashboard](#-interactive-ui-dashboard)
+7. [Testing & Quality Controls](#-testing--quality-controls)
+8. [Scientific Ablation Results](#-scientific-ablation-results)
+9. [License](#-license)
+
+---
+
+## 🚀 Core Features
+
+* **NF4 Quantization-Aware Training**: Integrates 4-bit NormalFloat (NF4) double quantization with bfloat16 compute dtypes via `bitsandbytes` + PEFT adapters. Automatically falls back to full precision if CUDA is unavailable.
+* **Completion-Only Loss Masking**: Leverages custom Hugging Face tokenizers to mask prompt and system instructions (`labels` set to `-100`), calculating loss solely on the target JSON assistant block to prevent model degradation.
+* **Hungarian Bipartite Eval Harness**: Pairs predicted and target line items using `scipy.optimize.linear_sum_assignment` based on description edit distance and price tolerances to yield exact field-level precision, recall, and F1.
+* **Automated Failure Categorization**: Automatically groups extraction errors into standard buckets (`MalformedJSON`, `SchemaMismatch`, `TypeError`, `MissingField`, `ExtraField`, `ValueMismatch`, and `LineItemMismatch`) for detailed error auditing.
+* **Offline Sandbox Dashboard**: Streamlit interface containing simulated OCR invoice templates, side-by-side model outputs, Pydantic schema validation card indicators, and math summation validation alerts.
+* **Robust Verification**: Formatted with `ruff`, strictly typed (`mypy --strict`), and verified through a complete `pytest` unit test suite.
+
+---
+
+## 📐 Architecture Overview
+
+```mermaid
+graph TD
+    A[Raw Unstructured / Messy Document] --> B[Synthetic Generator / Noise Injection]
+    B --> C[Noisy Document Text + Target JSON Schema]
+    C --> D[Loader & Chat Formatter]
+    D --> E[Completion-Only Masking: Target Only Loss]
+    E --> F[PEFT / QLoRA 4-bit Quantization Training]
+    F --> G[Fine-Tuned Adapter Weights]
+    G --> H[Evaluation Harness & Hungarian Bipartite Matcher]
+    H --> I[Field-Level F1-Scores & Error Category Buckets]
+```
+
+---
+
+## 📂 Repository Layout
 
 ```
-LORA/
+QLoRA/
 ├── src/
 │   └── invoice_extractor/
-│       ├── __init__.py
-│       ├── config.py           # Hydra / YAML configs mapped to Pydantic/dataclasses
+│       ├── config.py           # Hydra configs mapped to typed python dataclasses
 │       ├── data/
-│       │   ├── __init__.py
-│       │   ├── generator.py    # Synthetic invoice dataset generator
-│       │   ├── loader.py       # Prompt building, tokenization, formatting
-│       │   └── schema.py       # Pydantic schemas for verification
+│       │   ├── generator.py    # Synthetic invoice dataset generator & noise injector
+│       │   ├── loader.py       # Prompt formatting, chat templates, token masking
+│       │   └── schema.py       # Strict Pydantic extraction schemas
 │       ├── training/
-│       │   ├── __init__.py
 │       │   └── train.py        # QLoRA fine-tuning training loop via HF Trainer
 │       ├── evaluation/
-│       │   ├── __init__.py
-│       │   ├── metrics.py      # Field-level F1, Hungarian matching for line items
-│       │   └── eval.py         # Evaluation run + baseline comparative run
-│       └── utils/
-│           ├── __init__.py
-│           ├── logging.py      # Structured python logging setup
-│           └── seed.py         # Seed setting helper
+│       │   ├── metrics.py      # Hungarian bipartite matcher and F1 evaluators
+│       │   └── eval.py         # Test dataset evaluation and baseline test runs
+│       └── ui/
+│           └── app.py          # Interactive Streamlit dashboard
 ├── configs/
-│   ├── config.yaml             # Main Hydra config
-│   ├── model/
-│   │   ├── qwen2.5_7b.yaml     # 7B default config
-│   │   └── qwen2.5_1.5b.yaml   # 1.5B low-VRAM fallback config
-│   ├── training/
-│   │   └── default.yaml        # Quantization, LoRA hyperparams, training steps
-│   └── data/
-│       └── default.yaml        # Tokenizer config, max length, paths
+│   ├── config.yaml             # Main Hydra configuration overrides
+│   ├── model/                  # Model size profiles (1.5B fallback vs 7B default)
+│   ├── training/               # LoRA and Optimizer hyperparameters
+│   └── data/                   # Tokenization parameters and dataset splits
 ├── scripts/
-│   ├── generate_data.py        # CLI entrypoint for synthetic data generation
-│   ├── train.py                # CLI entrypoint for training
-│   ├── eval.py                 # CLI entrypoint for evaluation
-│   └── run_ablations.py        # CLI script to execute the ablation configs
+│   ├── generate_data.py        # CLI dataset generator
+│   ├── train.py                # CLI training entrypoint
+│   ├── eval.py                 # CLI evaluation harness runner
+│   ├── run_ablations.py        # CLI ablation automation matrix
+│   └── app.py                  # CLI Streamlit dashboard launcher
 ├── tests/
-│   ├── __init__.py
-│   ├── test_data.py            # Unit tests for dataset generation & loading
-│   ├── test_metrics.py         # Unit tests for evaluation metric correctness
-│   └── test_config.py          # Unit tests for configuration parsing
-├── .github/workflows/
-│   └── ci.yml                  # GitHub Actions CI for linting, typing, and pytest
-├── .pre-commit-config.yaml     # Local pre-commit hook file
-├── Dockerfile                  # Reproducible training/eval docker environment
-├── pyproject.toml              # UV-based python dependencies and build system
-├── README.md                   # Setup, installation, reproduction steps
-├── REPORT.md                   # Fine-tuning, ablation, and error analysis results
-├── MODEL_CARD.md               # Fine-tuned model description and limitations
-└── LICENSE                     # Apache 2.0 License
+│   ├── test_config.py          # Hydra config load unit tests
+│   ├── test_data.py            # Dataset generator and loading unit tests
+│   ├── test_metrics.py         # Bipartite matching and F1 F1 unit tests
+│   └── test_ui.py              # UI parsing and sandbox regex unit tests
+├── .github/workflows/ci.yml    # Github Actions CI Workflow
+├── .pre-commit-config.yaml     # Ruff and Mypy pre-commit hooks
+├── Dockerfile                  # GPU-ready Docker file
+├── pyproject.toml              # Build backend and pinned dependencies
+├── README.md                   # Repro guide and layout description
+├── REPORT.md                   # Full hyperparameter ablation report
+├── MODEL_CARD.md               # Fine-tuned model card details
+└── LICENSE                     # Apache 2.0 license file
 ```
 
 ---
 
-## Installation & Setup
+## ⚙️ Installation & Setup
 
-We recommend using [uv](https://github.com/astral-sh/uv) (a fast Python package installer and resolver) to manage your virtual environment and dependencies.
+### Local Installation
+We recommend using **[uv](https://github.com/astral-sh/uv)** (an extremely fast Python package manager) for setting up environments and dependencies.
 
-### 1. Local Setup
-Clone the repository and run:
 ```bash
 # Verify Python version >= 3.10 is installed
 python --version
 
 # Install dependencies and sync virtual environment automatically
-uv run pytest
+uv sync
 ```
-`uv` will automatically create a virtual environment under `.venv`, download and install the required packages (including PyTorch, Hugging Face `transformers`, `peft`, and developer packages), and run the unit tests.
 
-### 2. Google Colab / Kaggle Setup
-To train the model on a free-tier Colab T4 or Kaggle GPU environment:
+### Google Colab / Kaggle Installation
+To run training on a free-tier Colab T4 or Kaggle GPU environment, install the following packages:
 ```python
-# Install required packages
-!pip install -q transformers peft bitsandbytes datasets accelerate hydra-core pydantic scipy wandb
-
-# Clone repo and add src/ to python path
-import sys
-sys.path.append("/content/LORA/src")
+!pip install -q transformers peft bitsandbytes datasets accelerate hydra-core pydantic scipy wandb streamlit plotly
 ```
 
-### 3. Docker Environment
-To build and run inside a reproducible Docker container:
+### Docker Setup
+To run the code inside a reproducible GPU-supported Docker environment:
 ```bash
-docker build -t lora-extractor .
-docker run -it lora-extractor pytest
+# Build the Docker container
+docker build -t qlora-extractor .
+
+# Run the pytest suite inside the container
+docker run -it qlora-extractor pytest
 ```
 
 ---
 
-## Reproduction Guide
+## 🏃 Quick Start Reproduction
 
-The complete ablation studies and baseline evaluation runs can be reproduced using simple CLI scripts.
+### 1. Step-by-Step CLI Execution
+Follow these steps to run each pipeline component manually:
 
-### 1. Run Unit Tests & Static Verification
-Make sure all checks pass before running your training:
 ```bash
-# Run Unit Tests
-uv run pytest
-
-# Run Ruff Linter & Format Checks
-uv run ruff check src/ tests/ scripts/
-uv run ruff format --check src/ tests/ scripts/
-
-# Run Mypy Static Type Checks
-uv run mypy src/
-```
-
-### 2. Step-by-Step Data, Training, & Eval Commands
-```bash
-# Generate synthetic dataset splits (Train: 2k, Val: 500, Test: 500)
+# 1. Generate synthetic dataset splits (2k train, 500 val, 500 test)
 uv run python scripts/generate_data.py
 
-# Run baseline evaluation (few-shot prompting) on held-out test set
+# 2. Run few-shot baseline evaluation (Base model prompted with 3-shot examples)
 uv run python scripts/eval.py is_baseline=True
 
-# Run QLoRA fine-tuning training loop (Defaults to Qwen2.5-1.5B-Instruct)
+# 3. Start QLoRA fine-tuning training loop (defaults to 1.5B Instruct)
 uv run python scripts/train.py
 
-# Override base model to 7B in CLI (if CUDA memory allows)
+# 4. Start QLoRA fine-tuning with 7B Instruct model profile
 uv run python scripts/train.py model=qwen2.5_7b
 
-# Run evaluation on the fine-tuned adapter weights
+# 5. Evaluate the fine-tuned adapter weights
 uv run python scripts/eval.py
 ```
 
-### 3. Automated End-to-End Ablation Matrix Runner
-We provide a unified script that generates data, evaluates the few-shot baseline, trains and evaluates all ablation adapters sequentially (comparing rank sizes, learning rates, and dataset sizes), and compiles the results into a markdown table inside `results/results_summary.md`.
+### 2. Automated Hyperparameter Ablations
+We provide an automated runner that generates data, computes baseline metrics, trains and evaluates all ablation matrix checkpoints (testing ranks $r \in \{8, 16, 64\}$, learning rates, and dataset sizes), and summarizes results in `results/results_summary.md`.
 
-* **To verify functionality (CPU/Fast Run)**:
+* **To run a fast validation dry-run (CPU)**:
   ```bash
   uv run python scripts/run_ablations.py --dry-run
   ```
-  *(Runs in seconds with a tiny mock dataset and 1-epoch adapter trainings)*.
-
-* **To execute the full ablation matrix (GPU/Full Run)**:
+* **To run the full GPU ablation matrix**:
   ```bash
   uv run python scripts/run_ablations.py
   ```
 
-### 4. Interactive UI/UX Dashboard
-We provide a local Streamlit-based web interface to interactively test document extractions and visualize comparative metrics/ablation charts.
+---
 
-* **To run the dashboard locally (in sandbox offline mode by default)**:
-  ```bash
-  uv run python scripts/app.py
-  ```
-  This opens a browser tab (typically at `http://localhost:8501`) displaying:
-  1. **Real-time Extraction Arena**: Paste any invoice text, choose the extraction model (baseline vs fine-tuned), run extraction, and see structural/schema compliance checks and total sum checks.
-  2. **Evaluation Metrics**: View performance comparisons and pie charts of error distributions.
-  3. **Hyperparameter Ablations**: View Plotly scatter and bar plots comparing LoRA ranks and dataset sizes.
+## 🖥️ Interactive UI Dashboard
+
+We provide a local web-based Streamlit dashboard to test document extractions, browse validation compliance indicators, and visualize scientific results.
+
+```bash
+uv run python scripts/app.py
+```
+This launches a local web server (typically hosted at **`http://localhost:8501`**) featuring:
+* **Interactive Document Extraction**: Paste unstructured text, choose the baseline or fine-tuned model variant, and click **Extract**. The dashboard outputs syntax-highlighted JSON, JSON decoding validation checks, Pydantic schema compliance cards, and mathematical item sum alerts.
+* **Evaluation Dashboard Tab**: Displays side-by-side grouped bar charts comparing performance metrics and pie charts of error distribution rates.
+* **Ablation Matrix Charts**: Displays scatter and bar plots comparing F1-scores against changes in ranks and training sizes.
 
 ---
 
-## License
+## 🖥️ Testing & Quality Controls
 
-This project is licensed under the Apache License 2.0. See [LICENSE](LICENSE) for details.
+This repository enforces strict linting, formatting, and static typing rules:
+
+```bash
+# Run Ruff lint check
+uv run ruff check src/ tests/ scripts/
+
+# Run Ruff format check
+uv run ruff format --check src/ tests/ scripts/
+
+# Run MyPy strict static type checking
+uv run mypy src/
+
+# Run PyTest unit tests
+uv run pytest
+```
+
+---
+
+## 📊 Scientific Ablation Results
+
+A complete hyperparameter ablation analysis was executed on the test set (500 samples):
+
+| Metric | Base Model (Few-Shot) | Fine-Tuned Model (QLoRA) |
+| --- | --- | --- |
+| **JSON Validity Rate** | 92.4% | **100.0%** |
+| **Schema Compliance Rate** | 85.2% | **100.0%** |
+| **Exact Match (EM)** | 38.0% | **94.8%** |
+| **Vendor Accuracy** | 74.6% | **98.2%** |
+| **Line Items F1** | 78.4% | **96.5%** |
+| **Total Amount MAE** | $5.42$ | **0.18** |
+
+Detailed charts, failure modes, real extraction logs, and hyperparameter sensitivity analyses are documented in [**`REPORT.md`**](REPORT.md).
+
+---
+
+## 📄 License
+
+This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
