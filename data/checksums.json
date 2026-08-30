@@ -1,0 +1,18 @@
+{
+  "train": {
+    "path": "data/train.jsonl",
+    "sha256": "8642747ee9a952211da102016438a35d6eb9797597d3f85e786795903e6d298b",
+    "size": 10
+  },
+  "val": {
+    "path": "data/val.jsonl",
+    "sha256": "3cc162ad62c28dc12c4e3b443d05473217112427838cc039f1b5f6d2f3a9c42a",
+    "size": 5
+  },
+  "test": {
+    "path": "data/test.jsonl",
+    "sha256": "a9246ebd0561f76aec648d01778bcf9b1a9e88fc2797eab0f49a307b38290331",
+    "size": 5
+  },
+  "seed": 42
+}

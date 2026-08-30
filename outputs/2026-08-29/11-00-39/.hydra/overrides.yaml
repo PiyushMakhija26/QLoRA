@@ -1,0 +1,3 @@
+- is_baseline=True
+- evaluation.results_dir=results/baseline_few-shot
+- data.test_size=5

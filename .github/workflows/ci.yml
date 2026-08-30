@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      - name: Install dependencies
+        run: |
+          uv pip install --system -e .
+          uv pip install --system ruff mypy pytest types-tqdm scipy pydantic
+
+      - name: Run Ruff Lint
+        run: ruff check src/ tests/ scripts/
+
+      - name: Run Ruff Format Check
+        run: ruff format --check src/ tests/ scripts/
+
+      - name: Run Mypy Type Check
+        run: mypy src/
+
+      - name: Run Pytest
+        run: pytest

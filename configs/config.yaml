@@ -1,0 +1,16 @@
+defaults:
+  - _self_
+  - model: qwen2.5_1.5b
+  - training: default
+  - data: default
+  - evaluation: default
+
+seed: 42
+wandb:
+  project: "lora-invoice-extractor"
+  entity: null
+  mode: "disabled"
+  tags: []
+
+is_baseline: false
+adapter_path: null

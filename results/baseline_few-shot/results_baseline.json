@@ -1,0 +1,263 @@
+{
+  "config": {
+    "model_name": "Qwen/Qwen2.5-1.5B-Instruct",
+    "is_baseline": true,
+    "adapter_path": null
+  },
+  "summary": {
+    "json_valid_rate": 1.0,
+    "schema_compliant_rate": 1.0,
+    "exact_match_rate": 0.2,
+    "vendor_accuracy": 1.0,
+    "vendor_similarity": 1.0,
+    "date_accuracy": 0.8,
+    "invoice_number_accuracy": 0.8,
+    "currency_accuracy": 1.0,
+    "tax_amount_mean_absolute_error": 13.2,
+    "total_amount_mean_absolute_error": 0.0,
+    "line_items_precision": 1.0,
+    "line_items_recall": 1.0,
+    "line_items_f1": 1.0,
+    "error_frequencies": {
+      "ValueMismatch": 0.4
+    },
+    "error_counts": {
+      "ValueMismatch": 2
+    },
+    "sample_count": 5
+  },
+  "details": [
+    {
+      "text": "============================================================\n                      I N V O I C E\n============================================================\nVendor: Horizon Software\nInvoice No: #INV-2025-67545\nDate: 01/10/2022\nCurrency: USD\n------------------------------------------------------------\nDescription                    Qty   Unit Price   Total Price\n------------------------------------------------------------\nCloud Server Hosting           1     54.59 USD    USD 54.59    \nPython Development Support     6     USD 91.39    $548.34     \n------------------------------------------------------------\nSubtotal: USD 602.93\nTax (20%): lZ0.59 USD\nTotal Due: $723.52\n============================================================",
+      "target": {
+        "vendor": "Horizon Software",
+        "invoice_date": "2022-01-10",
+        "invoice_number": "INV-2025-67545",
+        "currency": "USD",
+        "line_items": [
+          {
+            "description": "Cloud Server Hosting",
+            "quantity": 1,
+            "unit_price": 54.59,
+            "total_price": 54.59
+          },
+          {
+            "description": "Python Development Support",
+            "quantity": 6,
+            "unit_price": 91.39,
+            "total_price": 548.34
+          }
+        ],
+        "tax_amount": 120.59,
+        "total_amount": 723.52
+      },
+      "prediction_raw": "```json\n{\n  \"vendor\": \"Horizon Software\",\n  \"invoice_date\": \"2022-01-10\",\n  \"invoice_number\": \"INV-2025-67545\",\n  \"currency\": \"USD\",\n  \"line_items\": [\n    {\n      \"description\": \"Cloud Server Hosting\",\n      \"quantity\": 1,\n      \"unit_price\": 54.59,\n      \"total_price\": 54.59\n    },\n    {\n      \"description\": \"Python Development Support\",\n      \"quantity\": 6,\n      \"unit_price\": 91.39,\n      \"total_price\": 548.34\n    }\n  ],\n  \"tax_amount\": 54.59,\n  \"total_amount\": 723.52\n}\n```",
+      "metrics": {
+        "json_valid": 1.0,
+        "schema_compliant": 1.0,
+        "exact_match": 0.0,
+        "vendor_acc": 1.0,
+        "vendor_sim": 1.0,
+        "date_acc": 1.0,
+        "invoice_number_acc": 1.0,
+        "currency_acc": 1.0,
+        "tax_amount_err": 66.0,
+        "total_amount_err": 0.0,
+        "line_items_precision": 1.0,
+        "line_items_recall": 1.0,
+        "line_items_f1": 1.0,
+        "errors": [
+          "ValueMismatch"
+        ]
+      }
+    },
+    {
+      "text": "From: billing@urbanfashionhouse.com\nTo: accounts-payable@clientcorp.com\nDate: August 10, 2021\nSubject: Invoice REC-2021-70179 from Urban Fashion House\n\nDear Customer,\n\nPlease find attached invoice #REC-2021-70179 for your recent purchase.\n\nDetails:\n- 2x Web Domain Registry @ GBP 12.83 each (Total: 25.66 GBP)\n- 3x High-speed Ethernet Cable @ \u00a317.77 each (Total: 53.31 GBP)\n- 1x USB-C Docking Station @ \u00a382.24 each (Total: GBP 82.24)\n\nSummary:\nSubtotal: GBP  16l.21\nTax: \u00a332.24\nAmount Due: \u00a3193.45\n\nPlease remit payment at your earliest convenience.\n\nBest regards,\nUrban Fashion House Billing Dept.",
+      "target": {
+        "vendor": "Urban Fashion House",
+        "invoice_date": "2021-08-10",
+        "invoice_number": "REC-2021-70179",
+        "currency": "GBP",
+        "line_items": [
+          {
+            "description": "Web Domain Registry",
+            "quantity": 2,
+            "unit_price": 12.83,
+            "total_price": 25.66
+          },
+          {
+            "description": "High-speed Ethernet Cable",
+            "quantity": 3,
+            "unit_price": 17.77,
+            "total_price": 53.31
+          },
+          {
+            "description": "USB-C Docking Station",
+            "quantity": 1,
+            "unit_price": 82.24,
+            "total_price": 82.24
+          }
+        ],
+        "tax_amount": 32.24,
+        "total_amount": 193.45
+      },
+      "prediction_raw": "```json\n{\n  \"vendor\": \"Urban Fashion House\",\n  \"invoice_date\": \"2021-08-10\",\n  \"invoice_number\": \"REC-2021-70179\",\n  \"currency\": \"GBP\",\n  \"line_items\": [\n    {\n      \"description\": \"Web Domain Registry\",\n      \"quantity\": 2,\n      \"unit_price\": 12.83,\n      \"total_price\": 25.66\n    },\n    {\n      \"description\": \"High-speed Ethernet Cable\",\n      \"quantity\": 3,\n      \"unit_price\": 17.77,\n      \"total_price\": 53.31\n    },\n    {\n      \"description\": \"USB-C Docking Station\",\n      \"quantity\": 1,\n      \"unit_price\": 82.24,\n      \"total_price\": 82.24\n    }\n  ],\n  \"tax_amount\": 32.24,\n  \"total_amount\": 193.45\n}\n```",
+      "metrics": {
+        "json_valid": 1.0,
+        "schema_compliant": 1.0,
+        "exact_match": 1.0,
+        "vendor_acc": 1.0,
+        "vendor_sim": 1.0,
+        "date_acc": 1.0,
+        "invoice_number_acc": 1.0,
+        "currency_acc": 1.0,
+        "tax_amount_err": 0.0,
+        "total_amount_err": 0.0,
+        "line_items_precision": 1.0,
+        "line_items_recall": 1.0,
+        "line_items_f1": 1.0,
+        "errors": []
+      }
+    },
+    {
+      "text": "============================================================\n                      I N V O I C E\n============================================================\nVendor: Horizon Software\nInvoice No: #202635870\nDate: 06/11/2021\nCurrency: USD\n------------------------------------------------------------\nDescription                     Qty   Unit Price   Total Price\n------------------------------------------------------------\nWireless Mouse & Keyboard      2     $46.78       $93.56      \nHigh-speed Ethernet Cable      5     $18.42       92.10 USD   \nCorporate Training Session     3     474.91 USD   $1424.73    \nA4 Printer Paper Ream           1     7.75 USD     7.75 USD    \n------------------------------------------------------------\nSubtotal: $1618.14\nTax (5%): USD 80.91\nTotal Due: USD 1699.05\n============================================================",
+      "target": {
+        "vendor": "Horizon Software",
+        "invoice_date": "2021-11-06",
+        "invoice_number": "202635870",
+        "currency": "USD",
+        "line_items": [
+          {
+            "description": "Wireless Mouse & Keyboard",
+            "quantity": 2,
+            "unit_price": 46.78,
+            "total_price": 93.56
+          },
+          {
+            "description": "High-speed Ethernet Cable",
+            "quantity": 5,
+            "unit_price": 18.42,
+            "total_price": 92.1
+          },
+          {
+            "description": "Corporate Training Session",
+            "quantity": 3,
+            "unit_price": 474.91,
+            "total_price": 1424.73
+          },
+          {
+            "description": "A4 Printer Paper Ream",
+            "quantity": 1,
+            "unit_price": 7.75,
+            "total_price": 7.75
+          }
+        ],
+        "tax_amount": 80.91,
+        "total_amount": 1699.05
+      },
+      "prediction_raw": "```json\n{\n  \"vendor\": \"Horizon Software\",\n  \"invoice_date\": \"2021-06-11\",\n  \"invoice_number\": \"#202635870\",\n  \"currency\": \"USD\",\n  \"line_items\": [\n    {\n      \"description\": \"Wireless Mouse & Keyboard\",\n      \"quantity\": 2,\n      \"unit_price\": 46.78,\n      \"total_price\": 93.56\n    },\n    {\n      \"description\": \"High-speed Ethernet Cable\",\n      \"quantity\": 5,\n      \"unit_price\": 18.42,\n      \"total_price\": 92.1\n    },\n    {\n      \"description\": \"Corporate Training Session\",\n      \"quantity\": 3,\n      \"unit_price\": 474.91,\n      \"total_price\": 1424.73\n    },\n    {\n      \"description\": \"A4 Printer Paper Ream\",\n      \"quantity\": 1,\n      \"unit_price\": 7.75,\n      \"total_price\": 7.75\n    }\n  ],\n  \"tax_amount\": 80.91,\n  \"total_amount\": 1699.05\n}\n```",
+      "metrics": {
+        "json_valid": 1.0,
+        "schema_compliant": 1.0,
+        "exact_match": 0.0,
+        "vendor_acc": 1.0,
+        "vendor_sim": 1.0,
+        "date_acc": 0.0,
+        "invoice_number_acc": 0.0,
+        "currency_acc": 1.0,
+        "tax_amount_err": 0.0,
+        "total_amount_err": 0.0,
+        "line_items_precision": 1.0,
+        "line_items_recall": 1.0,
+        "line_items_f1": 1.0,
+        "errors": [
+          "ValueMismatch"
+        ]
+      }
+    },
+    {
+      "text": "----------------------------------------\n              APEX GLOBAL SOLUTIONS\n----------------------------------------\nREC NO: INV-2022-86588\nDATE: 2025-11-25\n----------------------------------------\nDatabase Subscription\n  4 * 124.47 GBP = GBP 497.88\n----------------------------------------\nSUBTOTAL: GBP 497.88\nTAX: 0.00 GBP\nTOTAL: GBP 497.88\n----------------------------------------\n           THANK YOU FOR SHOPPING\n----------------------------------------",
+      "target": {
+        "vendor": "Apex Global Solutions",
+        "invoice_date": "2025-11-25",
+        "invoice_number": "INV-2022-86588",
+        "currency": "GBP",
+        "line_items": [
+          {
+            "description": "Database Subscription",
+            "quantity": 4,
+            "unit_price": 124.47,
+            "total_price": 497.88
+          }
+        ],
+        "tax_amount": 0.0,
+        "total_amount": 497.88
+      },
+      "prediction_raw": "```json\n{\n  \"vendor\": \"APEX GLOBAL SOLUTIONS\",\n  \"invoice_date\": \"2025-11-25\",\n  \"invoice_number\": \"INV-2022-86588\",\n  \"currency\": \"GBP\",\n  \"line_items\": [\n    {\n      \"description\": \"Database Subscription\",\n      \"quantity\": 4,\n      \"unit_price\": 124.47,\n      \"total_price\": 497.88\n    }\n  ],\n  \"tax_amount\": 0.0,\n  \"total_amount\": 497.88\n}\n```",
+      "metrics": {
+        "json_valid": 1.0,
+        "schema_compliant": 1.0,
+        "exact_match": 0.0,
+        "vendor_acc": 1.0,
+        "vendor_sim": 1.0,
+        "date_acc": 1.0,
+        "invoice_number_acc": 1.0,
+        "currency_acc": 1.0,
+        "tax_amount_err": 0.0,
+        "total_amount_err": 0.0,
+        "line_items_precision": 1.0,
+        "line_items_recall": 1.0,
+        "line_items_f1": 1.0,
+        "errors": []
+      }
+    },
+    {
+      "text": "----------------------------------------\n              INITECH OFFICE SUPPLIES\n----------------------------------------\nREC NO: INV-2020-24992\nDATE: 30/07/2025\n----------------------------------------\nWeb Domain Registry\n  6 * 11.08 EUR = \u20ac66.48\nCoffee Beans 1kg\n  5 * EUR  22.70 = \u20ac113.50\nUSB-C Docking Station\n  5 * \u20ac86.04 = \u20ac430.20\n----------------------------------------\nSUBTOTAL: 610.18 EUR\nTAX: \u20ac61.02\nTOTAL: \u20ac671.20\n----------------------------------------\n           THANK YOU FOR SHOPPING\n----------------------------------------",
+      "target": {
+        "vendor": "Initech Office Supplies",
+        "invoice_date": "2025-07-30",
+        "invoice_number": "INV-2020-24992",
+        "currency": "EUR",
+        "line_items": [
+          {
+            "description": "Web Domain Registry",
+            "quantity": 6,
+            "unit_price": 11.08,
+            "total_price": 66.48
+          },
+          {
+            "description": "Coffee Beans 1kg",
+            "quantity": 5,
+            "unit_price": 22.7,
+            "total_price": 113.5
+          },
+          {
+            "description": "USB-C Docking Station",
+            "quantity": 5,
+            "unit_price": 86.04,
+            "total_price": 430.2
+          }
+        ],
+        "tax_amount": 61.02,
+        "total_amount": 671.2
+      },
+      "prediction_raw": "```json\n{\n  \"vendor\": \"INITECH OFFICE SUPPLIES\",\n  \"invoice_date\": \"2025-07-30\",\n  \"invoice_number\": \"INV-2020-24992\",\n  \"currency\": \"EUR\",\n  \"line_items\": [\n    {\n      \"description\": \"Web Domain Registry\",\n      \"quantity\": 6,\n      \"unit_price\": 11.08,\n      \"total_price\": 66.48\n    },\n    {\n      \"description\": \"Coffee Beans\",\n      \"quantity\": 5,\n      \"unit_price\": 22.7,\n      \"total_price\": 113.5\n    },\n    {\n      \"description\": \"USB-C Docking Station\",\n      \"quantity\": 5,\n      \"unit_price\": 86.04,\n      \"total_price\": 430.2\n    }\n  ],\n  \"tax_amount\": 61.02,\n  \"total_amount\": 671.2\n}\n```",
+      "metrics": {
+        "json_valid": 1.0,
+        "schema_compliant": 1.0,
+        "exact_match": 0.0,
+        "vendor_acc": 1.0,
+        "vendor_sim": 1.0,
+        "date_acc": 1.0,
+        "invoice_number_acc": 1.0,
+        "currency_acc": 1.0,
+        "tax_amount_err": 0.0,
+        "total_amount_err": 0.0,
+        "line_items_precision": 1.0,
+        "line_items_recall": 1.0,
+        "line_items_f1": 1.0,
+        "errors": []
+      }
+    }
+  ]
+}

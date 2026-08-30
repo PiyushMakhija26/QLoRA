@@ -1,0 +1,64 @@
+seed: 42
+wandb:
+  project: lora-invoice-extractor
+  entity: null
+  mode: disabled
+  tags: []
+is_baseline: false
+adapter_path: null
+model:
+  name: Qwen/Qwen2.5-1.5B-Instruct
+  torch_dtype: bfloat16
+  use_peft: true
+  lora:
+    r: 16
+    lora_alpha: 32
+    lora_dropout: 0.05
+    target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+  quantization:
+    load_in_4bit: true
+    bnb_4bit_quant_type: nf4
+    bnb_4bit_use_double_quant: true
+    bnb_4bit_compute_dtype: bfloat16
+training:
+  learning_rate: 0.0002
+  num_train_epochs: 1
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 4
+  gradient_checkpointing: true
+  weight_decay: 0.01
+  lr_scheduler_type: cosine
+  warmup_ratio: 0.03
+  logging_steps: 1
+  eval_steps: 1
+  evaluation_strategy: steps
+  save_strategy: steps
+  save_steps: 1
+  save_total_limit: 2
+  output_dir: outputs/ablation_default_r16_lr2e-4_100_data
+  bf16: true
+  fp16: false
+  report_to: wandb
+data:
+  train_path: data/train.jsonl
+  val_path: data/val.jsonl
+  test_path: data/test.jsonl
+  max_seq_length: 1024
+  num_samples: 3000
+  train_size: 10
+  val_size: 500
+  test_size: 500
+  checksum_file: data/checksums.json
+evaluation:
+  batch_size: 8
+  temperature: 0.0
+  max_new_tokens: 512
+  few_shot_examples: 3
+  results_dir: results

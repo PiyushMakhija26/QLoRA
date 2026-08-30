@@ -1,0 +1,9 @@
+train_path: "data/train.jsonl"
+val_path: "data/val.jsonl"
+test_path: "data/test.jsonl"
+max_seq_length: 1024
+num_samples: 3000
+train_size: 2000
+val_size: 500
+test_size: 500
+checksum_file: "data/checksums.json"
